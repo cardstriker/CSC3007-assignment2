@@ -13,11 +13,120 @@
   <div class="content">
     <h1>Cases Recorded for Selected Major Offences</h1>
     <script>
-      var csv = new FileReader().readAsText("cases-recorded-for-selected-major-offences.csv");
-      console.log(csv.toString());
-      var data = $.csv.toObjects(csv);
-      $(".content").append("<p>"+ data.toString() + "</p>");
+
+      async function fetchRecordData() {
+        let response = await fetch('https://data.gov.sg/api/action/datastore_search?resource_id=83c21090-bd19-4b54-ab6b-d999c251edcf');
+        let data = await response.json();
+        console.log(data.result.records);
+        let records = data.result.records;
+
+        var margin = {top: 20, right: 20, bottom: 40, left: 40},
+        width = 1060 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;
+        /*
+        var categories = []
+        for (let k = 0; k < 10; k++) {
+          categories.push(records[k].level_2)
+        }
+        console.log(categories)
+        */
+
+        var i = 1;
+        var partOfRecords = []
+        var recordId = ""
+
+        for (let k = 0; k < records.length; k+=10) {
+          partOfRecords = records.slice(k, k+10);
+          recordId = "record" + i.toString();
+
+
+          var svg = d3.select(".dataCharts")
+          .append("svg")
+          .attr("width", width + 100)
+          .attr("height", height + 100) //to seperate the svg clearly
+          //.attr("margin", "50px")
+          .attr("id", recordId);
+
+          var chart = d3.select("#"+recordId)
+          .append("g")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+          // Add scales
+          var xScale = d3.scaleBand()
+          .domain(partOfRecords.map(function(d) { return d.level_2; }))
+          .rangeRound([0, width])
+          .padding(0.2);
+
+          var yScale = d3.scaleLinear()
+          .domain([0, 1000])
+          .rangeRound([height, 0]);
+
+          // Add x-axis
+          chart.append("g")
+          .attr("class", "axis axis-x")
+          .attr("transform", "translate(0," + (height) + ")")
+          .call(d3.axisBottom(xScale));
+
+
+          // Add y-axis
+          chart.append("g")
+          .attr("class", "axis axis-y")
+          .call(d3.axisLeft(yScale).ticks(10));
+
+          chart.append("text")
+          .data(partOfRecords)
+          .attr("transform", "translate(" + (width / 2) + "," + (height + 40) + ")")
+          .text(function(d) { return "Year: " + d.year })
+          .attr("text-align", "middle");
+
+          // Append rectangles
+          chart.selectAll("rect")
+          .data(partOfRecords)
+          .enter()
+          .append("rect")
+          .attr("x", function(d) { return xScale(d.level_2);})
+          .attr("y", function(d) { return yScale(d.value); })
+          .attr("width", function(d) {return xScale.bandwidth();})
+          .attr("height", function(d) { return height - yScale(d.value); })
+          .attr("class", "svgRect")
+          .attr("fill", "red");
+
+
+          
+
+
+          i++;
+        }
+        /*
+        for (let k = 0; k < records.length; k+=10) {
+          for (let i = k; i < k+10; i++) {
+            appendThis = "<tr><td>"+records[i].level_2+"</td><td>"+records[i].year+"</td><td>"+records[i].value+"</td></tr>";
+            $(".casesTable").append(appendThis)
+          }
+        }
+        */
+
+      }
+      fetchRecordData();
     </script>
+    <div class='dataCharts'>
+      <!--<svg id="chart" viewBox="0 0 960 500"></svg>-->
+      <script>
+        /*
+        var data = [
+        {student: "Alfred", score: 65},
+        {student: "Bernard", score: 35},
+        {student: "Christine", score: 75}
+        ];
+        
+
+        var data = fetchRecordData();
+
+
+        */
+
+      </script>
+    </div>
   </div>
 
 
