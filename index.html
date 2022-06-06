@@ -7,6 +7,9 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.21/jquery.csv.min.js" integrity="sha512-Y8iWYJDo6HiTo5xtml1g4QqHtl/PO1w+dmUpQfQSOTqKNsMhExfyPN2ncNAe9JuJUSKzwK/b6oaNPop4MXzkwg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <title> Cases Recorded for Selected Major Offences </title>
+  <style type="text/css">
+    html, body, div.content { width:100%; height:100%; margin:0;  }
+  </style>
 </head>
 <body>
 
@@ -22,7 +25,9 @@
 
         var margin = {top: 20, right: 20, bottom: 40, left: 40},
         width = 1060 - margin.left - margin.right,
-        height = 500 - margin.top - margin.bottom;
+        height = 500 - margin.top - margin.bottom,
+        svgWidth = 1160,
+        svgHeight = 600;
         /*
         var categories = []
         for (let k = 0; k < 10; k++) {
@@ -42,12 +47,12 @@
 
           var svg = d3.select(".dataCharts")
           .append("svg")
-          .attr("width", width + 100)
-          .attr("height", height + 100) //to seperate the svg clearly
           //.attr("margin", "50px")
+          .attr("preserveAspectRatio", "xMinYMin meet")
+          .attr("viewBox", "0 0 "+ svgWidth.toString() + " " + svgHeight.toString())
           .attr("id", recordId);
 
-          var chart = d3.select("#"+recordId)
+          var record = d3.select("#"+recordId)
           .append("g")
           .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -58,29 +63,29 @@
           .padding(0.2);
 
           var yScale = d3.scaleLinear()
-          .domain([0, 1000])
+          .domain([0, 2000])
           .rangeRound([height, 0]);
 
           // Add x-axis
-          chart.append("g")
+          record.append("g")
           .attr("class", "axis axis-x")
           .attr("transform", "translate(0," + (height) + ")")
           .call(d3.axisBottom(xScale));
 
 
           // Add y-axis
-          chart.append("g")
+          record.append("g")
           .attr("class", "axis axis-y")
-          .call(d3.axisLeft(yScale).ticks(10));
+          .call(d3.axisLeft(yScale).ticks(15));
 
-          chart.append("text")
+          record.append("text")
           .data(partOfRecords)
           .attr("transform", "translate(" + (width / 2) + "," + (height + 40) + ")")
           .text(function(d) { return "Year: " + d.year })
           .attr("text-align", "middle");
 
           // Append rectangles
-          chart.selectAll("rect")
+          record.selectAll("rect")
           .data(partOfRecords)
           .enter()
           .append("rect")
@@ -89,13 +94,18 @@
           .attr("width", function(d) {return xScale.bandwidth();})
           .attr("height", function(d) { return height - yScale(d.value); })
           .attr("class", "svgRect")
-          .attr("fill", "red");
-
-
-          
-
-
-          i++;
+          .attr("fill", "red")
+          .on('mouseover', function (d, i) {
+            d3.select(this).transition()
+            .duration('50')
+            .attr('opacity', '.50');
+          })
+          .on('mouseout', function (d, i) {
+            d3.select(this).transition()
+            .duration('50')
+            .attr('opacity', '1');
+          });
+              i++;
         }
         /*
         for (let k = 0; k < records.length; k+=10) {
