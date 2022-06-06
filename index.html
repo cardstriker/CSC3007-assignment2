@@ -84,6 +84,16 @@
           .text(function(d) { return "Year: " + d.year })
           .attr("text-align", "middle");
 
+          record.selectAll("rect")
+              .data(partOfRecords)
+            .enter()
+            .append("text")
+              .attr("class", "bar")
+              .attr("text-anchor", "middle")
+              .attr("x", function(d) { return xScale(d.level_2) })
+              .attr("y", function(d) { return yScale(d.Value) - 5; })
+              .text(function(d) { return d.value; });
+
           // Append rectangles
           record.selectAll("rect")
           .data(partOfRecords)
@@ -95,6 +105,8 @@
           .attr("height", function(d) { return height - yScale(d.value); })
           .attr("class", "svgRect")
           .attr("fill", "red")
+          .attr("text-anchor", "middle")
+          .text(function(d) { return d.value; })
           .on('mouseover', function (d, i) {
             d3.select(this).transition()
             .duration('50')
