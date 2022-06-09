@@ -44,6 +44,11 @@
           partOfRecords = records.slice(k, k+10);
           recordId = "record" + i.toString();
 
+          var tooplTipDiv = d3.select("body").append("div")   
+                .attr("class", "myTooltip")               
+                .style("opacity", 0);
+
+
 
           var svg = d3.select(".dataCharts")
           .append("svg")
@@ -91,7 +96,7 @@
               .attr("class", "bar")
               .attr("text-anchor", "middle")
               .attr("x", function(d) { return xScale(d.level_2) })
-              .attr("y", function(d) { return yScale(d.Value) - 5; })
+              .attr("y", function(d) { return yScale(d.Value); })
               .text(function(d) { return d.value; });
 
           // Append rectangles
@@ -105,8 +110,8 @@
           .attr("height", function(d) { return height - yScale(d.value); })
           .attr("class", "svgRect")
           .attr("fill", "red")
-          .attr("text-anchor", "middle")
-          .text(function(d) { return d.value; })
+          //.attr("text-anchor", "middle")
+          //.text(function(d) { return d.value; })
           .on('mouseover', function (d, i) {
             d3.select(this).transition()
             .duration('50')
