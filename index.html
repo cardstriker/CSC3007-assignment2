@@ -15,7 +15,7 @@
 
   <div class="content">
     <h1>Cases Recorded for Selected Major Offences</h1>
-
+    <!--
     <select id="years" onchange="updateCharts()">
       <option value="2011">2011</option>
       <option value="2012">2012</option>
@@ -28,9 +28,10 @@
       <option value="2019">2019</option>
       <option value="2020">2020</option>
     </select>
+  -->
 
     <script>
-      document.getElementById("years").onchange = function() {fetchRecordData()};
+      //document.getElementById("years").onchange = function() {fetchRecordData()};
 
       async function fetchRecordData() {
         let response = await fetch('https://data.gov.sg/api/action/datastore_search?resource_id=83c21090-bd19-4b54-ab6b-d999c251edcf');
@@ -38,9 +39,7 @@
         console.log(data.result.records);
         let records = data.result.records;
 
-        var selectedYear = document.getElementById("years").value;
-
-        //records = await newRecords.find(rec => rec.year === year);
+        //var selectedYear = document.getElementById("years").value;
 
 
         var margin = {top: 20, right: 20, bottom: 40, left: 40},
@@ -55,7 +54,7 @@
 
         for (let k = 0; k < records.length; k+=10) {
           partOfRecords = records.slice(k, k+10);
-          if (partOfRecords[0].year == selectedYear){
+          if (partOfRecords[0].year == 2020){
           recordId = "record" + i.toString();
 
           var svg = d3.select(".dataCharts")
@@ -121,7 +120,7 @@
           // Append rectangles
           record.selectAll("rect")
           .data(partOfRecords)
-          .transition()
+          .enter()
           .append("rect")
           .attr("x", function(d) { return xScale(d.level_2);})
           .attr("y", function(d) { return yScale(d.value); })
@@ -160,7 +159,7 @@
       //fetchRecordData();
     </script>
     <div class='dataCharts'>
-      <svg id="myChart"></svg>
+      <!--<svg id="myChart"></svg>-->
     </div>
   </div>
 
