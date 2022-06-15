@@ -15,26 +15,33 @@
 
   <div class="content">
     <h1>Cases Recorded for Selected Major Offences</h1>
+    <!--
+    <select id="years" onchange="updateCharts()">
+      <option value="2011">2011</option>
+      <option value="2012">2012</option>
+      <option value="2013">2013</option>
+      <option value="2014">2014</option>
+      <option value="2015">2015</option>
+      <option value="2016">2016</option>
+      <option value="2017">2017</option>
+      <option value="2018">2018</option>
+      <option value="2019">2019</option>
+      <option value="2020">2020</option>
+    </select>
+    -->
     <script>
-
       async function fetchRecordData() {
         let response = await fetch('https://data.gov.sg/api/action/datastore_search?resource_id=83c21090-bd19-4b54-ab6b-d999c251edcf');
         let data = await response.json();
         console.log(data.result.records);
         let records = data.result.records;
 
+
         var margin = {top: 20, right: 20, bottom: 40, left: 40},
         width = 1060 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom,
         svgWidth = 1160,
         svgHeight = 600;
-        /*
-        var categories = []
-        for (let k = 0; k < 10; k++) {
-          categories.push(records[k].level_2)
-        }
-        console.log(categories)
-        */
 
         var i = 1;
         var partOfRecords = []
@@ -44,15 +51,8 @@
           partOfRecords = records.slice(k, k+10);
           recordId = "record" + i.toString();
 
-          var tooplTipDiv = d3.select("body").append("div")   
-                .attr("class", "myTooltip")               
-                .style("opacity", 0);
-
-
-
           var svg = d3.select(".dataCharts")
           .append("svg")
-          //.attr("margin", "50px")
           .attr("preserveAspectRatio", "xMinYMin meet")
           .attr("viewBox", "0 0 "+ svgWidth.toString() + " " + svgHeight.toString())
           .attr("id", recordId);
@@ -89,15 +89,27 @@
           .text(function(d) { return "Year: " + d.year })
           .attr("text-align", "middle");
 
+          const tooltip = d3
+          .select(".dataCharts")
+          .append("div")
+          .attr("class", "valueTooltip")
+          .style("position", "absolute")
+          .style("z-index", "10")
+          .style("visibility", "hidden")
+          .style("padding", "15px")
+          .style("background", "rgba(0,0,0,0.6)")
+          .style("border-radius", "5px")
+          .style("color", "white");
+
           record.selectAll("rect")
-              .data(partOfRecords)
-            .enter()
-            .append("text")
-              .attr("class", "bar")
-              .attr("text-anchor", "middle")
-              .attr("x", function(d) { return xScale(d.level_2) })
-              .attr("y", function(d) { return yScale(d.Value); })
-              .text(function(d) { return d.value; });
+          .data(partOfRecords)
+          .enter()
+          .append("text")
+          .attr("class", "bar")
+          .attr("text-anchor", "middle")
+          .attr("x", function(d) { return xScale(d.level_2) })
+          .attr("y", function(d) { return yScale(d.Value); })
+          .text(function(d) { return d.value; });
 
           // Append rectangles
           record.selectAll("rect")
@@ -105,54 +117,42 @@
           .enter()
           .append("rect")
           .attr("x", function(d) { return xScale(d.level_2);})
-          .attr("y", function(d) { return yScale(d.value); })
+          .attr("y", function(d) { console.log(d.value); return yScale(d.value); })
           .attr("width", function(d) {return xScale.bandwidth();})
           .attr("height", function(d) { return height - yScale(d.value); })
           .attr("class", "svgRect")
           .attr("fill", "red")
-          //.attr("text-anchor", "middle")
-          //.text(function(d) { return d.value; })
-          .on('mouseover', function (d, i) {
+          .on('mouseover', function (event, d) {
+            tooltip
+            .html("Value: " + d.value)
+            .style("visibility", "visible");
+
             d3.select(this).transition()
             .duration('50')
-            .attr('opacity', '.50');
+            .attr('opacity', '.50');            
           })
-          .on('mouseout', function (d, i) {
+          .on("mousemove", function (event) {
+            tooltip
+            .style("top", event.pageY - 10 + "px")
+            .style("left", event.pageX + 10 + "px");
+          })
+          .on('mouseout', function (event) {
+            tooltip
+            .html("")
+            .style("visibility", "hidden");
+
             d3.select(this).transition()
             .duration('50')
             .attr('opacity', '1');
           });
-              i++;
+          i++;
         }
-        /*
-        for (let k = 0; k < records.length; k+=10) {
-          for (let i = k; i < k+10; i++) {
-            appendThis = "<tr><td>"+records[i].level_2+"</td><td>"+records[i].year+"</td><td>"+records[i].value+"</td></tr>";
-            $(".casesTable").append(appendThis)
-          }
-        }
-        */
 
       }
       fetchRecordData();
     </script>
     <div class='dataCharts'>
-      <!--<svg id="chart" viewBox="0 0 960 500"></svg>-->
-      <script>
-        /*
-        var data = [
-        {student: "Alfred", score: 65},
-        {student: "Bernard", score: 35},
-        {student: "Christine", score: 75}
-        ];
-        
 
-        var data = fetchRecordData();
-
-
-        */
-
-      </script>
     </div>
   </div>
 
